@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using ThunderRoad;
 using UnityEngine;
 
-namespace Halo
+namespace INeedAWeapon
 {
     public class HaloEvents : ThunderScript
     {
