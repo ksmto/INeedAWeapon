@@ -1,352 +1,166 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections;
 using ThunderRoad;
 using UnityEngine;
 
-namespace INeedAWeapon
-{
-    public class HaloAnnouncer : HaloEvents
-    {
+namespace INeedAWeapon {
+    public class HaloAnnouncer : HaloEvents {
+        int killCounter = 0;
         int killSpreeCounter = 0;
 
-        int killCounter = 0;
+        // Multikill Effects
+        private EffectData haloDoubleKillEffectData, haloTripleKillEffectData, haloOverKillEffectData, haloKilltacularEffectData, haloKilltrocityEffectData, haloKillimanjaroEffectData, haloKilltastropheEffectData, haloKillpocalypseEffectData, haloKillionaireEffectData;
+        // Killing Spree Effects
+        private EffectData haloKillingSpreeEffectData, haloKillingFrenzyEffectData, haloRunningRiotEffectData, haloRampageEffectData, haloUntouchableEffectData, haloInvincibleEffectData;
 
-        [ModOptionCategory("Announcer", 1)]
-        [ModOptionTooltip("Toggle MultiKills")]
-        [ModOptionOrder(3)]
-        [ModOption("MultiKills", defaultValueIndex = 1)]
-        [ModOptionButton]
-        public static bool boolMultiKills;
+        public override void OnCatalogRefresh(EventTime eventTime) {
+            base.OnCatalogRefresh(eventTime);
 
-        [ModOptionCategory("Announcer", 1)]
-        [ModOptionTooltip("Toggle Killing Sprees")]
-        [ModOptionOrder(2)]
-        [ModOption("Killing Sprees", defaultValueIndex = 1)]
-        [ModOptionButton]
-        public static bool boolKillingSprees;
+            // Multikill effects
+            haloDoubleKillEffectData = Catalog.GetData<EffectData>("HaloDoubleKillQuote");
+            haloTripleKillEffectData = Catalog.GetData<EffectData>("HaloTripleKillQuote");
+            haloOverKillEffectData = Catalog.GetData<EffectData>("HaloOverKillQuote");
+            haloKilltacularEffectData = Catalog.GetData<EffectData>("HaloKilltacularQuote");
+            haloKilltrocityEffectData = Catalog.GetData<EffectData>("HaloKilltrocityQuote");
+            haloKillimanjaroEffectData = Catalog.GetData<EffectData>("HaloKillimanjaroQuote");
+            haloKilltastropheEffectData = Catalog.GetData<EffectData>("HaloKilltastropheQuote");
+            haloKillpocalypseEffectData = Catalog.GetData<EffectData>("HaloKillpocalypseQuote");
+            haloKillionaireEffectData = Catalog.GetData<EffectData>("HaloKillionaireQuote");
 
-        public static ModOptionInt[] killTimeOut =
-{
-            new ModOptionInt("4 Seconds", 4),
-            new ModOptionInt("8 Seconds", 8),
-            new ModOptionInt("16 Seconds", 16),
-            new ModOptionInt("32 Seconds", 32)
-        };
-
-        [ModOption(name: "MultiKill Timer", tooltip: "How long between kills to get a multi", nameof(killTimeOut))]
-        [ModOptionCategory("Announcer", 1)]
-        [ModOptionArrows]
-        [ModOptionOrder(3)]
-        public static int killTime = 4;
-
-
-
-
-        public EffectData HaloKillingSpreeEffectData, HaloKillingFrenzyEffectData, HaloRunningRiotEffectData, HaloRampageEffectData, HaloUntouchableEffectData, HaloInvincibleEffectData;
-        public EffectInstance HaloKillingSpreeEffect, HaloKillingFrenzyEffect, HaloRunningRiotEffect, HaloRampageEffect, HaloUntouchableEffect, HaloInvincibleEffect;
-        public EffectData HaloDoubleKillEffectData, HaloTripleKillEffectData, HaloOverKillEffectData, HaloKilltacularEffectData, HaloKilltrocityEffectData, HaloKillimanjaroEffectData, HaloKilltastropheEffectData, HaloKillpocalypseEffectData, HaloKillionaireEffectData;
-        public EffectInstance HaloDoubleKilleffect, HaloTripleKillEffect, HaloOverKillEffect, HaloKilltacularEffect, HaloKilltrocityEffect, HaloKillimanjaroEffect, HaloKilltastropheEffect, HaloKillpocalypseEffect, HaloKillionaireEffect;
-
-        public override void EventManager_onCatalogRefresh(EventTime eventTime)
-        {
-            base.EventManager_onCatalogRefresh(eventTime);
-
-            //Killing spree effects 
-            HaloKillingSpreeEffectData = Catalog.GetData<EffectData>("HaloKillingSpreeQuote");
-            HaloKillingFrenzyEffectData = Catalog.GetData<EffectData>("HaloKillingFrenzyQuote");
-            HaloRunningRiotEffectData = Catalog.GetData<EffectData>("HaloRunningRiotQuote");
-            HaloRampageEffectData = Catalog.GetData<EffectData>("HaloRampageQuote");
-            HaloUntouchableEffectData = Catalog.GetData<EffectData>("HaloUntouchableQuote");
-            HaloInvincibleEffectData = Catalog.GetData<EffectData>("HaloInvincibleQuote");
-
-            //Multi Kill effects
-            HaloDoubleKillEffectData = Catalog.GetData<EffectData>("HaloDoubleKillQuote");
-            HaloTripleKillEffectData = Catalog.GetData<EffectData>("HaloTripleKillQuote");
-            HaloOverKillEffectData = Catalog.GetData<EffectData>("HaloOverKillQuote");
-            HaloKilltacularEffectData = Catalog.GetData<EffectData>("HaloKilltacularQuote");
-            HaloKilltrocityEffectData = Catalog.GetData<EffectData>("HaloKilltrocityQuote");
-            HaloKillimanjaroEffectData = Catalog.GetData<EffectData>("HaloKillimanjaroQuote");
-            HaloKilltastropheEffectData = Catalog.GetData<EffectData>("HaloKilltastropheQuote");
-            HaloKillpocalypseEffectData = Catalog.GetData<EffectData>("HaloKillpocalypseQuote");
-            HaloKillionaireEffectData = Catalog.GetData<EffectData>("HaloKillionaireQuote");
-
+            // Killing spree effects 
+            haloKillingSpreeEffectData = Catalog.GetData<EffectData>("HaloKillingSpreeQuote");
+            haloKillingFrenzyEffectData = Catalog.GetData<EffectData>("HaloKillingFrenzyQuote");
+            haloRunningRiotEffectData = Catalog.GetData<EffectData>("HaloRunningRiotQuote");
+            haloRampageEffectData = Catalog.GetData<EffectData>("HaloRampageQuote");
+            haloUntouchableEffectData = Catalog.GetData<EffectData>("HaloUntouchableQuote");
+            haloInvincibleEffectData = Catalog.GetData<EffectData>("HaloInvincibleQuote");
         }
-        public override void HaloMapChange(LevelData levelData, EventTime eventTime)
-        {
+
+        public override void OnMapChange(LevelData levelData, EventTime eventTime) {
+            base.OnMapChange(levelData, eventTime);
             killSpreeCounter = 0;
         }
-        public override void HaloKill(Creature creature, Player player, CollisionInstance collisionInstance, EventTime eventTime)
-        {
 
-            if (boolKillingSprees)
-            {
+        public override void OnCreatureKill(Creature creature, Player player, CollisionInstance collisionInstance, EventTime eventTime) {
+            base.OnCreatureKill(creature, player, collisionInstance, eventTime);
+            if (ModOptions.KillingSpreeAnnouncements) {
                 KillStreaks(creature);
             }
 
-            if (boolMultiKills)
-            {
-                MultiKills(creature);
+            if (ModOptions.MultikillAnnouncements) {
+                Multikills(creature);
             }
         }
-        void KillStreaks(Creature creature)
-        {
+
+        private void Multikills(Creature creature) {
+            if (killCounter == 0) {
+                GameManager.local.StartCoroutine(MultikillTimeInterval());
+                killCounter += 1;
+                Debug.Log($"Multikill increased to {killCounter}");
+            }
+
+            if (killCounter == 1) {
+                EffectInstance haloDoubleKillEffectInstance = haloDoubleKillEffectData?.Spawn(creature.ragdoll.rootPart.transform);
+                haloDoubleKillEffectInstance?.Play();
+                killCounter += 1;
+                Debug.Log($"Multikill increased to {killCounter}");
+
+            } else if (killCounter == 2) {
+                EffectInstance haloTripleKillEffectInstance = haloTripleKillEffectData?.Spawn(creature.ragdoll.rootPart.transform);
+                haloTripleKillEffectInstance?.Play();
+                killCounter += 1;
+                Debug.Log($"Multikill increased to {killCounter}");
+
+            } else if (killCounter == 3) {
+                EffectInstance haloOverKillEffectInstance = haloOverKillEffectData?.Spawn(creature.ragdoll.rootPart.transform);
+                haloOverKillEffectInstance?.Play();
+                killCounter += 1;
+                Debug.Log($"Multikill increased to {killCounter}");
+
+            } else if (killCounter == 4) {
+                EffectInstance haloKilltacularEffectInstance = haloKilltacularEffectData?.Spawn(creature.ragdoll.rootPart.transform);
+                haloKilltacularEffectInstance?.Play();
+                killCounter += 1;
+                Debug.Log($"Multikill increased to {killCounter}");
+
+            } else if (killCounter == 5) {
+                EffectInstance haloKilltrocityEffectInstance = haloKilltrocityEffectData?.Spawn(creature.ragdoll.rootPart.transform);
+                haloKilltrocityEffectInstance?.Play();
+                killCounter += 1;
+                Debug.Log($"Multikill increased to {killCounter}");
+
+            } else if (killCounter == 6) {
+                EffectInstance haloKillimanjaroEffectInstance = haloKillimanjaroEffectData?.Spawn(creature.ragdoll.rootPart.transform);
+                haloKillimanjaroEffectInstance?.Play();
+                killCounter += 1;
+                Debug.Log($"Multikill increased to {killCounter}");
+
+            } else if (killCounter == 7) {
+                EffectInstance haloKilltastropheEffectInstance = haloKilltastropheEffectData?.Spawn(creature.ragdoll.rootPart.transform);
+                haloKilltastropheEffectInstance?.Play();
+                killCounter += 1;
+                Debug.Log($"Multikill increased to {killCounter}");
+
+            } else if (killCounter == 8) {
+                EffectInstance haloKillpocalypseEffectInstance = haloKillpocalypseEffectData?.Spawn(creature.ragdoll.rootPart.transform);
+                haloKillpocalypseEffectInstance?.Play();
+                killCounter += 1;
+                Debug.Log($"Multikill increased to {killCounter}");
+
+            } else if (killCounter == 9) {
+                EffectInstance haloKillionaireEffectInstance = haloKillionaireEffectData?.Spawn(creature.ragdoll.rootPart.transform);
+                haloKillionaireEffectInstance?.Play();
+                killCounter = 0;
+                Debug.Log($"Multikill reset to {killCounter}");
+
+            }
+        }
+
+        private void KillStreaks(Creature creature) {
             killSpreeCounter += 1;
-            Debug.Log("KillSpree increased to" + killSpreeCounter);
-            if (!creature.isPlayer)
-            {
-                if (killSpreeCounter == 5)
-                {
-                    GameManager.local.StartCoroutine(KillingSpree());
+            Debug.Log($"KillSpree increased to {killSpreeCounter}");
+
+            if (!creature.isPlayer) {
+                if (killSpreeCounter == 5) {
+                    EffectInstance haloKillingSpreeEffectInstance = haloKillingSpreeEffectData?.Spawn(Player.local.creature.transform);
+                    haloKillingSpreeEffectInstance?.Play();
                 }
 
-                if (killSpreeCounter == 10)
-                {
-                    GameManager.local.StartCoroutine(KillingFrenzy());
+                if (killSpreeCounter == 10) {
+                    EffectInstance haloKillingFrenzyEffectInstance = haloKillingFrenzyEffectData?.Spawn(Player.local.creature.transform);
+                    haloKillingFrenzyEffectInstance?.Play();
                 }
-                if (killSpreeCounter == 15)
-                {
-                    GameManager.local.StartCoroutine(RunningRiot());
+
+                if (killSpreeCounter == 15) {
+                    EffectInstance haloKillingRunningRiotEffectInstance = haloRunningRiotEffectData?.Spawn(Player.local.creature.transform);
+                    haloKillingRunningRiotEffectInstance?.Play();
                 }
-                if (killSpreeCounter == 20)
-                {
-                    GameManager.local.StartCoroutine(Rampage());
+
+                if (killSpreeCounter == 20) {
+                    EffectInstance haloKillingRampageEffectInstance = haloRampageEffectData?.Spawn(Player.local.creature.transform);
+                    haloKillingRampageEffectInstance?.Play();
                 }
-                if (killSpreeCounter == 25)
-                {
-                    GameManager.local.StartCoroutine(Untouchable());
+
+                if (killSpreeCounter == 25) {
+                    EffectInstance haloUntouchableEffectInstance = haloUntouchableEffectData?.Spawn(Player.local.creature.transform);
+                    haloUntouchableEffectInstance?.Play();
                 }
-                if (killSpreeCounter == 30)
-                {
-                    GameManager.local.StartCoroutine(Invincible());
+
+                if (killSpreeCounter == 30) {
+                    EffectInstance haloInvincibleEffectInstance = haloInvincibleEffectData?.Spawn(Player.local.creature.transform);
+                    haloInvincibleEffectInstance?.Play();
                     killSpreeCounter = 0;
                 }
-            }
-            else
-            {
+            } else {
                 Debug.Log("Player died resetting killspree");
                 killSpreeCounter = 0;
             }
         }
 
-        void MultiKills(Creature creature)
-        {
-            if (killCounter == 0)
-            {
-                GameManager.local.StartCoroutine(Killtimer());
-                killCounter += 1;
-                Debug.Log("MultiKill increased to " + killCounter);
-            }
-
-            if (killCounter == 1)
-            {
-                HaloDoubleKilleffect.Play();
-                killCounter += 1;
-                Debug.Log("MultiKill increased to " + killCounter);
-
-            }
-            else if (killCounter == 2)
-            {
-                HaloTripleKillEffect.Play();
-                killCounter += 1;
-                Debug.Log("MultiKill increased to " + killCounter);
-
-            }
-            else if (killCounter == 3)
-            {
-                HaloOverKillEffect.Play();
-                killCounter += 1;
-                Debug.Log("MultiKill increased to " + killCounter);
-
-            }
-            else if (killCounter == 4)
-            {
-                HaloKilltacularEffect.Play();
-                killCounter += 1;
-                Debug.Log("MultiKill increased to " + killCounter);
-
-            }
-            else if (killCounter == 5)
-            {
-                HaloKilltrocityEffect.Play();
-                killCounter += 1;
-                Debug.Log("MultiKill increased to " + killCounter);
-
-            }
-            else if (killCounter == 6)
-            {
-                HaloKillimanjaroEffect.Play();
-                killCounter += 1;
-                Debug.Log("MultiKill increased to " + killCounter);
-
-            }
-            else if (killCounter == 7)
-            {
-                HaloKilltastropheEffect.Play();
-                killCounter += 1;
-                Debug.Log("MultiKill increased to " + killCounter);
-
-            }
-            else if (killCounter == 8)
-            {
-                HaloKillpocalypseEffect.Play();
-                killCounter += 1;
-                Debug.Log("MultiKill increased to " + killCounter);
-
-            }
-            else if (killCounter == 9)
-            {
-                HaloKillionaireEffect.Play();
-                killCounter = 0;
-                Debug.Log("MultiKill reset to " + killCounter);
-
-            }
-        }
-        public IEnumerator KillingSpree()
-        {
-           
-            HaloKillingSpreeEffect = HaloKillingSpreeEffectData.Spawn(Player.local.creature.transform);
-            {
-                HaloKillingSpreeEffect.Play();
-                yield return null;
-            }
-        }
-        public IEnumerator KillingFrenzy()
-        {
-           
-            HaloKillingFrenzyEffect = HaloKillingFrenzyEffectData.Spawn(Player.local.creature.transform);
-            {
-                HaloKillingFrenzyEffect.Play();
-                yield return null;
-            }
-        }
-        public IEnumerator RunningRiot()
-        {
-            
-            HaloRunningRiotEffect = HaloRunningRiotEffectData.Spawn(Player.local.creature.transform);
-            {
-                HaloRunningRiotEffect.Play();
-                yield return null;
-            }
-        }
-        public IEnumerator Rampage()
-        {
-            
-            HaloRampageEffect = HaloRampageEffectData.Spawn(Player.local.creature.transform);
-            {
-                HaloRampageEffect.Play();
-                yield return null;
-            }
-        }
-        public IEnumerator Untouchable()
-        {
-            
-            HaloUntouchableEffect = HaloUntouchableEffectData.Spawn(Player.local.creature.transform);
-            {
-                HaloUntouchableEffect.Play();
-                yield return null;
-            }
-        }
-        public IEnumerator Invincible()
-        {
-            
-            HaloInvincibleEffect = HaloInvincibleEffectData.Spawn(Player.local.creature.transform); ;
-            {
-                HaloInvincibleEffect.Play();
-                yield return null;
-            }
-        }
-        public IEnumerator DoubleKill()
-        {
-            HaloDoubleKilleffect = HaloDoubleKillEffectData.Spawn(Player.local.creature.transform);
-            {
-                HaloDoubleKilleffect.Play();
-                yield return null;
-            }
-        }
-        public IEnumerator TripleKill()
-        {
-            
-            HaloTripleKillEffect = HaloTripleKillEffectData.Spawn(Player.local.creature.transform);
-            {
-                HaloTripleKillEffect.Play();
-                yield return null;
-            }
-        }
-        public IEnumerator OverKill()
-        {
-            
-            HaloOverKillEffect = HaloOverKillEffectData.Spawn(Player.local.creature.transform);
-            {
-                HaloOverKillEffect.Play();
-                yield return null;
-            }
-        }
-        public IEnumerator Killtacular()
-        {
-            
-            HaloKilltacularEffect = HaloKilltacularEffectData.Spawn(Player.local.creature.transform);
-            {
-                HaloKilltacularEffect.Play();
-                yield return null;
-            }
-        }
-        public IEnumerator Killtrocity()
-        {
-            
-            HaloKilltrocityEffect = HaloKilltrocityEffectData.Spawn(Player.local.creature.transform);
-            {
-                HaloKilltrocityEffect.Play();
-                yield return null;
-            }
-        }
-        public IEnumerator Killimanjaro()
-        {
-            
-            HaloKillimanjaroEffect = HaloKillimanjaroEffectData.Spawn(Player.local.creature.transform);
-            {
-                HaloKillimanjaroEffect.Play();
-                yield return null;
-            }
-        }
-        public IEnumerator Killtastrophe()
-        {
-            
-            HaloKilltastropheEffect = HaloKilltastropheEffectData.Spawn(Player.local.creature.transform);
-            {
-                HaloKilltastropheEffect.Play();
-                yield return null;
-            }
-        }
-        public IEnumerator Killpocalypse()
-        {
-            
-            HaloKillpocalypseEffect = HaloKillpocalypseEffectData.Spawn(Player.local.creature.transform);
-            {
-                HaloKillpocalypseEffect.Play();
-                yield return null;
-            }
-        }
-        public IEnumerator Killionaire()
-        {
-           
-            HaloKillionaireEffect = HaloKillionaireEffectData.Spawn(Player.local.creature.transform);
-
-            {
-                HaloKillionaireEffect.Play();
-                yield return null;
-            }
-        }
-        public IEnumerator Killtimer()
-        {
-            yield return new WaitForSeconds(killTime);
+        public IEnumerator MultikillTimeInterval() {
+            yield return new WaitForSeconds(ModOptions.MultikillTimeInterval);
             killCounter = 0;
             Debug.Log("MultiKill Timed out.");
             yield return null;
         }
     }
 }
-
