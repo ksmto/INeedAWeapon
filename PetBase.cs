@@ -7,42 +7,43 @@ using ThunderRoad;
 using UnityEngine;
 using UnityEngine.PlayerLoop;
 
-namespace HoverPet
-{
+namespace INeedAWeapon {
     public class PetBase : ThunderBehaviour
     {
+        public Item pet;
+        public Player player;
 
-        protected Item pet;
-        protected Player player;
         protected override void ManagedOnEnable()
         {
-            pet = GetComponent<Item>();
             base.ManagedOnEnable();
-            pet.OnHeldActionEvent += Item_OnHeldActionEvent;
-            EventManager.onCreatureKill += PetKillReact;
+            pet = GetComponent<Item>();
+            if (pet != null) {
+                pet.OnHeldActionEvent += OnHeldActionEvent;
+            }
+
+            EventManager.onCreatureKill += OnPetKill;
         }
 
-        public virtual void PetKillReact(Creature creature, Player player, CollisionInstance collisionInstance, EventTime eventTime)
-        {
+        protected override void ManagedUpdate() {
+            base.ManagedUpdate();
+            Update();
         }
 
-        public virtual void Item_OnHeldActionEvent(RagdollHand ragdollHand, Handle handle, Interactable.Action action)
-        {
+        protected override void ManagedFixedUpdate() {
+            base.ManagedFixedUpdate();
+            FixedUpdate();
         }
 
-        public virtual void Update()
-        {
-        }
-        
-        public virtual void FixedUpdate()
-        {
-        }
+        public virtual void OnPetKill(Creature creature, Player player, CollisionInstance collisionInstance, EventTime eventTime) { }
+        public virtual void OnHeldActionEvent(RagdollHand ragdollHand, Handle handle, Interactable.Action action) { }
+        public virtual void Update() { }
+        public virtual void FixedUpdate() { }
 
         protected override void ManagedOnDisable()
         {
             base.ManagedOnDisable();
-            pet.OnHeldActionEvent -= Item_OnHeldActionEvent;
-            EventManager.onCreatureKill -= PetKillReact;
+            pet.OnHeldActionEvent -= OnHeldActionEvent;
+            EventManager.onCreatureKill -= OnPetKill;
         }
     }
 }

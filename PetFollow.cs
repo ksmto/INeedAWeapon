@@ -7,11 +7,8 @@ using ThunderRoad;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-
-namespace HoverPet
-{
-
-    public class PetModule : ItemModule
+namespace INeedAWeapon {
+    public class ItemModulePet : ItemModule
     {
         public override void OnItemLoaded(Item item)
         {
@@ -21,6 +18,7 @@ namespace HoverPet
             Debug.Log("PetFollow added to" + item);
         }
     }
+
     public class PetFollow : PetBase
     {
         Vector3 vecPlayerPos;
@@ -50,47 +48,35 @@ namespace HoverPet
         Vector3 lastError = new Vector3(0, 0, 0);
         Vector3 targetHeight;
         Rigidbody petRB;
-        
-        public override void Item_OnHeldActionEvent(RagdollHand ragdollHand, Handle handle, Interactable.Action action)
-        {
-            //toggles the pets ability to follow
-            base.Item_OnHeldActionEvent(ragdollHand, handle, action);
-            if (action == Interactable.Action.AlternateUseStart)
-            {
-                if (booAllowedtoFollow == true)
-                {
+
+        public override void OnHeldActionEvent(RagdollHand ragdollHand, Handle handle, Interactable.Action action) {
+            base.OnHeldActionEvent(ragdollHand, handle, action);
+            if (action == Interactable.Action.AlternateUseStart) {
+                if (booAllowedtoFollow == true) {
                     booAllowedtoFollow = false;
                     Debug.Log(pet + "not allowed to follow");
-                }
-                else
-                {
+                } else {
                     booAllowedtoFollow = true;
                     Debug.Log(pet + "allowed to follow");
                 }
             }
-    
         }
-        public override void Update()
-        {
+
+        public override void Update() {
             maxDistance = 0.3f;
 
             vecPlayerPos = Player.local.transform.position;
             vecItemPos = pet.transform.position;
-            if (booAllowedtoFollow == true)
-            {
-
+            if (booAllowedtoFollow == true) {
                 Vector3.MoveTowards(vecItemPos, vecPlayerPos, floSpeed);
 
-                if ((vecItemPos - vecPlayerPos).sqrMagnitude > maxDistance * maxDistance)
-                {
+                if ((vecItemPos - vecPlayerPos).sqrMagnitude > maxDistance * maxDistance) {
                     pet.transform.position = Vector3.Lerp(vecPlayerPos, vecItemPos, maxDistance);
                 }
             }
-
         }
 
-      public override void FixedUpdate()
-        {
+        public override void FixedUpdate() {
             //sets the corrective proportion P, I the increase/decrease of P, and the duration of those corrections D,   
             Kp = 0.2f;
             Ki = 0.1f;
@@ -103,8 +89,7 @@ namespace HoverPet
             RaycastHit hit;
             Ray downRay = new Ray(transform.position, -Vector3.up);
             //sends the raycast down and reports the hit
-            if(booAllowedtoFollow == true)
-            {
+            if (booAllowedtoFollow == true) {
                 Physics.Raycast(downRay, out hit);
                 //current error is the targetheight (2Y)  - the position the raycast returns the item at. 
                 var currentError = targetHeight - hit.transform.position;
