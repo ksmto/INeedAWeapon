@@ -521,8 +521,10 @@
     <Compile Include="HaloAnnouncer.cs" />
     <Compile Include="HaloBase.cs" />
     <Compile Include="ItemModuleGravityHammer.cs" />
+    <Compile Include="ItemModuleScope.cs" />
     <Compile Include="ModOptions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ScopeBehaviour.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
