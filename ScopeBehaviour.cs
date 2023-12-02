@@ -6,9 +6,6 @@ using ThunderRoad;
 using UnityEngine;
 using UnityEngine.UI;
 
-using UnityEngine;
-using UnityEngine.UI;
-
 namespace INeedAWeapon {
     public class ScopeBehaviour : MonoBehaviour {
         private Item item;
@@ -44,7 +41,7 @@ namespace INeedAWeapon {
         }
 
         private Transform FindScopeReticleTransform() {
-            Transform scopeTransform = item.transform?.Find("Battle Rifle")?.Find("Scope")?.Find("ScopeCamera")?.Find("Canvas")?.Find("ScopeBackgroud")?.Find("ScopeImage")?.Find("ScopeReticle");
+            Transform scopeTransform = item.transform?.Find("Battle Rifle")?.Find("Scope")?.Find("ScopeCamera")?.Find("Canvas")?.Find("ScopeBackground")?.Find("ScopeImage")?.Find("ScopeReticle");
             return scopeTransform;
         }
 
