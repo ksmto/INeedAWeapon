@@ -527,6 +527,7 @@
     <Compile Include="PetFollow.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ScopeBehaviour.cs" />
+    <Compile Include="ScrollTexture.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
