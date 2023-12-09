@@ -1,73 +1,98 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Runtime.CompilerServices;
-using ThunderRoad;
+﻿using ThunderRoad;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace INeedAWeapon {
-    public class ScopeBehaviour : MonoBehaviour {
+namespace INeedAWeapon
+{
+    public class ScopeBehaviour : MonoBehaviour
+    {
         private Item item;
         private Image blueReticle;
         private Color originalColor;
 
-        private void Start() {
+        private bool changedColor;
+
+        private void Start()
+        {
             InitializeComponents();
         }
 
-        private void Update() {
+        private void Update()
+        {
             UpdateReticleColor();
         }
 
-        private void InitializeComponents() {
+        private void InitializeComponents()
+        {
             item = GetComponent<Item>();
 
-            if (item != null) {
+            if (item != null)
+            {
                 Transform scopeReticleTransform = FindScopeReticleTransform();
 
-                if (scopeReticleTransform != null) {
+                if (scopeReticleTransform != null)
+                {
                     blueReticle = scopeReticleTransform.GetComponent<Image>();
 
-                    if (blueReticle != null) {
+                    if (blueReticle != null)
+                    {
                         originalColor = blueReticle.color;
-                    } else {
+                    }
+                    else
+                    {
                         Debug.LogError("ScopeReticle does not have Image component.");
                     }
-                } else {
+                }
+                else
+                {
                     Debug.LogError("ScopeReticle not found in children.");
                 }
             }
         }
 
-        private Transform FindScopeReticleTransform() {
+        private Transform FindScopeReticleTransform()
+        {
             Transform scopeTransform = item.transform?.Find("Battle Rifle")?.Find("Scope")?.Find("ScopeCamera")?.Find("Canvas")?.Find("ScopeBackground")?.Find("ScopeImage")?.Find("ScopeReticle");
             return scopeTransform;
         }
 
-        private void UpdateReticleColor() {
-            if (item != null) {
-                if (Physics.Raycast(item.transform.position, item.transform.forward, out RaycastHit hit)) {
+        private void UpdateReticleColor()
+        {
+            if (item != null)
+            {
+                if (Physics.Raycast(item.transform.position, item.transform.forward, out RaycastHit hit))
+                {
                     HandleHitCreature(hit);
-                } else {
-                    ResetReticleColor();
+                    changedColor = true;
+                }
+                else
+                {
+                    if (changedColor)
+                    {
+                        ResetReticleColor();
+                    }
                 }
             }
         }
 
-        private void HandleHitCreature(RaycastHit hit) {
+        private void HandleHitCreature(RaycastHit hit)
+        {
             Creature creature = hit.collider.GetComponentInParent<Creature>();
-            if (creature != null) {
+            if (creature != null)
+            {
                 Debug.Log("Hit creature");
                 blueReticle.material.color = Color.red;
                 Debug.Log("Changed color to red");
             }
         }
 
-        private void ResetReticleColor() {
-            if (blueReticle != null && blueReticle.material != null) {
+        private void ResetReticleColor()
+        {
+            if (blueReticle != null && blueReticle.material != null)
+            {
                 blueReticle.material.color = originalColor;
                 Debug.Log("Changed color to original");
+                changedColor = false;
             }
         }
     }

@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using ThunderRoad;
-using ThunderRoad.AI.Action;
-using UnityEngine;
+﻿using ThunderRoad;
 
 namespace INeedAWeapon
 {
@@ -20,29 +13,28 @@ namespace INeedAWeapon
 
         public class NPCEnergySword : ThunderBehaviour
         {
-            public Item item;
-            AnimatorParamController anim;
-            public void Start()
+            private Item item;
+            private AnimatorParamController animatorParamController;
+
+            protected override void ManagedOnEnable()
             {
-
-                EventManager.onItemEquip += NpcHandCheck;
-                
-
-            }
-
-            public void NpcHandCheck(Item item)
-            {
+                base.ManagedOnEnable();
                 item = GetComponent<Item>();
-
                 if (item != null)
                 {
-                    anim = item.GetComponent<AnimatorParamController>();
-                    if (item.mainHandler != null)
+                    animatorParamController = item.GetComponent<AnimatorParamController>();
+                    item.OnGrabEvent += Item_OnGrabEvent;
+                }
+            }
+
+            private void Item_OnGrabEvent(Handle handle, RagdollHand ragdollHand)
+            {
+                if (ragdollHand != null)
+                {
+                    var creature = ragdollHand.creature;
+                    if (creature != null && !creature.isPlayer)
                     {
-                        if (!item.mainHandler.creature.isPlayer)
-                        {
-                            anim.SetTrigger("npcSword");
-                        }
+                        animatorParamController.SetTrigger("npcSword");
                     }
                 }
             }

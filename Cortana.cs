@@ -1,13 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using ThunderRoad;
 
 namespace INeedAWeapon
 {
-    public class CortanaModule: ItemModule
+    public class CortanaModule : ItemModule
     {
         public override void OnItemLoaded(Item item)
         {
@@ -16,32 +12,41 @@ namespace INeedAWeapon
         }
     }
 
-    public class CortanaChip : ThunderBehaviour 
+    public class CortanaChip : ThunderBehaviour
     {
-        CortanaAnnouncer announcer;
-        public void OnItemLoaded(Item item)
+        private Item chip;
+        private CortanaAnnouncer announcer;
+
+        protected override void ManagedOnEnable()
         {
-            CortanaAnnouncer announcer = new CortanaAnnouncer();
-            EventManager.onEdibleConsumed += CortanaChipEaten;
-            announcer.boolCortanaActive = false;
+            base.ManagedOnEnable();
+            chip = GetComponent<Item>();
+            if (chip != null)
+            {
+                CortanaAnnouncer announcer = new CortanaAnnouncer();
+                EventManager.onEdibleConsumed += CortanaChipEaten;
+                announcer.boolCortanaActive = false;
+            }
         }
 
         private void CortanaChipEaten(Item edible, Creature consumer, EventTime eventTime)
         {
-            if (consumer != null && consumer.isPlayer) 
-            { 
-               announcer.boolCortanaActive = true;
-               announcer.CortanaGreeting();
+            if (consumer != null && consumer.isPlayer)
+            {
+                announcer.boolCortanaActive = true;
+                announcer.CortanaGreeting();
             }
         }
     }
 
     public class CortanaAnnouncer : HaloEvents
     {
-        int intQuoteRoll;
-        Random random = new Random();
+        public bool boolCortanaActive;
+        private int intQuoteRoll;
+        private Random random = new Random();
         private EffectData Cortana_DeathEffect, Cortana_LowHPEffect, Cortana_HurtEffect, Cortana_EnemyDamagedEffect, Cortana_EnemyWarnEffect, Cortana_KillEffect, Cortana_KillHeadshotEffect, Cortana_SpawnGreetEffect;
         private EffectInstance Cortana_Death, Cortana_LowHP, Cortana_Hurt, Cortana_EnemyDamaged, Cortana_EnemyWarn, Cortana_Kill, Cortana_KillHeadshot, Cortana_SpawnGreet;
+
         public override void OnCatalogRefresh(EventTime eventTime)
         {
             Cortana_DeathEffect = Catalog.GetData<EffectData>("INAWCortanaDeath");
@@ -53,7 +58,6 @@ namespace INeedAWeapon
             Cortana_KillHeadshotEffect = Catalog.GetData<EffectData>("INAWCortanaKillHeadshot");
             Cortana_SpawnGreetEffect = Catalog.GetData<EffectData>("INAWCortanaGreet");
         }
-        public bool boolCortanaActive;
 
         /* EVENTS */
         public override void OnCreatureHit(Creature creature, CollisionInstance collisionInstance, EventTime eventTime)
@@ -66,23 +70,21 @@ namespace INeedAWeapon
                     {
                         CortanaPlayerHurt();
                     }
-
                 }
             }
         }
+
         public override void OnCreatureKill(Creature creature, Player player, CollisionInstance collisionInstance, EventTime eventTime)
         {
+            if (boolCortanaActive)
             {
-                if (boolCortanaActive)
+                if (CortanaRandom())
                 {
-                    if (CortanaRandom())
-                    {
                     CortanaKills(collisionInstance, creature);
-                    }
                 }
-
             }
         }
+
         public override void OnCreatureSpawn(Creature creature)
         {
             if (boolCortanaActive)
@@ -91,7 +93,6 @@ namespace INeedAWeapon
                 {
                     CortanaEnemyWarning();
                 }
-                
             }
         }
 
@@ -99,27 +100,27 @@ namespace INeedAWeapon
         public bool CortanaRandom()
         {
             intQuoteRoll = random.Next(100 + 1);
-            if (ModOptions.quoteChance >= intQuoteRoll)
-            {
-                return true;
-            }
-            else return false;
+            return UnityEngine.Random.Range(0, 10) >= intQuoteRoll;
+            // return ModOptions.quoteChance >= intQuoteRoll;
         }
+
         public void CortanaEnemyDamage()
         {
             EffectInstance Cortana_EnemyDamage = Cortana_EnemyDamagedEffect?.Spawn(Player.local.creature.transform);
             Cortana_EnemyDamage.Play();
         }
+
         public void CortanaGreeting()
         {
             EffectInstance Cortana_SpawnGreetInstance = Cortana_SpawnGreetEffect?.Spawn(Player.local.creature.transform);
             Cortana_SpawnGreetInstance.Play();
         }
+
         public void CortanaPlayerHurt()
         {
             if (boolCortanaActive)
             {
-                if(Player.currentCreature.currentHealth / Player.currentCreature.maxHealth * 100 <= 25f)
+                if (Player.currentCreature.currentHealth / Player.currentCreature.maxHealth * 100 <= 25f)
                 {
                     EffectInstance CortanaPlayerHPWarn = Cortana_LowHPEffect?.Spawn(Player.local.creature.transform);
                     CortanaPlayerHPWarn.Play();
@@ -131,8 +132,9 @@ namespace INeedAWeapon
                 }
             }
         }
+
         public void CortanaKills(CollisionInstance collisionInstance, Creature creature)
-        {   
+        {
             if (creature.isPlayer)
             {
                 EffectInstance CortanaPlayerDeath = Cortana_DeathEffect?.Spawn(Player.local.creature.transform);
@@ -144,7 +146,7 @@ namespace INeedAWeapon
                 EffectInstance Cortana_Headshot = Cortana_KillHeadshotEffect?.Spawn(Player.local.creature.transform);
                 Cortana_Headshot.Play();
             }
-            else 
+            else
             {
                 EffectInstance Cortana_Kill = Cortana_KillHeadshotEffect?.Spawn(Player.local.creature.transform);
                 Cortana_Kill.Play();
@@ -156,7 +158,5 @@ namespace INeedAWeapon
             EffectInstance CortanaEnemyWarn = Cortana_EnemyWarnEffect?.Spawn(Player.local.creature.transform);
             CortanaEnemyWarn.Play();
         }
-
     }
-   
 }
