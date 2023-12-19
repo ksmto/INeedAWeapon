@@ -1,7 +1,9 @@
 using ThunderRoad;
 
-namespace INeedAWeapon {
-    internal class ModOptions {
+namespace INeedAWeapon
+{
+    internal class ModOptions
+    {
 
         /* KILLSTREAK SETTINGS */
         [ModOptionButton]

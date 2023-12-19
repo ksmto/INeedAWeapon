@@ -4,96 +4,108 @@ using UnityEngine.UI;
 
 namespace INeedAWeapon
 {
-    public class ScopeBehaviour : MonoBehaviour
+    public class ScopeBehaviour : ThunderBehaviour
     {
         private Item item;
-        private Image blueReticle;
-        private Color originalColor;
+        private Image reticle;
 
-        private bool changedColor;
-
-        private void Start()
+        protected override void ManagedOnEnable()
         {
-            InitializeComponents();
-        }
-
-        private void Update()
-        {
-            UpdateReticleColor();
-        }
-
-        private void InitializeComponents()
-        {
+            base.ManagedOnEnable();
             item = GetComponent<Item>();
 
             if (item != null)
             {
                 Transform scopeReticleTransform = FindScopeReticleTransform();
+                Transform scopeCameraTransform = FindScopeCameraTransform();
 
                 if (scopeReticleTransform != null)
                 {
-                    blueReticle = scopeReticleTransform.GetComponent<Image>();
-
-                    if (blueReticle != null)
-                    {
-                        originalColor = blueReticle.color;
-                    }
-                    else
-                    {
-                        Debug.LogError("ScopeReticle does not have Image component.");
-                    }
+                    reticle = scopeReticleTransform.GetComponent<Image>();
                 }
                 else
                 {
-                    Debug.LogError("ScopeReticle not found in children.");
+                    Debug.LogError("Scope Reticle not found in children.");
+                }
+
+                if (scopeCameraTransform != null)
+                {
+                    scopeCameraTransform.gameObject.SetActive(true);
+                }
+                else
+                {
+                    Debug.LogError("Scope Camera not found in children.");
                 }
             }
         }
 
-        private Transform FindScopeReticleTransform()
+        protected override void ManagedUpdate()
         {
-            Transform scopeTransform = item.transform?.Find("Battle Rifle")?.Find("Scope")?.Find("ScopeCamera")?.Find("Canvas")?.Find("ScopeBackground")?.Find("ScopeImage")?.Find("ScopeReticle");
-            return scopeTransform;
+            base.ManagedUpdate();
+            UpdateReticleColor();
         }
 
         private void UpdateReticleColor()
         {
-            if (item != null)
+            if (item != null && reticle != null)
             {
-                if (Physics.Raycast(item.transform.position, item.transform.forward, out RaycastHit hit))
+                // Default color to blue
+                Color reticleColor = Color.blue;
+
+                if (Physics.SphereCast(item.transform.position, 3.0f, item.transform.right, out RaycastHit hit))
                 {
-                    HandleHitCreature(hit);
-                    changedColor = true;
-                }
-                else
-                {
-                    if (changedColor)
+                    if (hit.collider.TryGetComponentInParent(out Creature creature))
                     {
-                        ResetReticleColor();
+                        if (creature != null && !creature.isPlayer)
+                        {
+                            // Set color to red if a non-player creature is found
+                            reticleColor = Color.red;
+
+                            // Break out of the loop since we found a relevant creature
+                            // break;
+                        }
+                    }
+                }
+
+                // Set the reticle color after iterating through all colliders
+                // reticle.material.color = reticleColor;
+            }
+        }
+
+
+        /*/// <summary>
+        /// Sets the reticles color to red if is active, otherwise, the reticle will be blue.
+        /// </summary>
+        /// <param name="active">Whether or not if the reticle is red, true meaning is red and vise virsa.</param>
+        private void SetReticleColor(bool active)
+        {
+            if (reticle != null)
+            {
+                var material = reticle.material;
+                if (material != null)
+                {
+                    if (active)
+                    {
+                        material.color = Color.red;
+                    }
+                    else
+                    {
+                        material.color = Color.blue;
                     }
                 }
             }
+        }*/
+
+        private Transform FindScopeCameraTransform()
+        {
+            Transform cameraTransform = item?.transform?.Find("Battle Rifle")?.Find("Scope")?.Find("ScopeCamera");
+            return cameraTransform;
         }
 
-        private void HandleHitCreature(RaycastHit hit)
+        private Transform FindScopeReticleTransform()
         {
-            Creature creature = hit.collider.GetComponentInParent<Creature>();
-            if (creature != null)
-            {
-                Debug.Log("Hit creature");
-                blueReticle.material.color = Color.red;
-                Debug.Log("Changed color to red");
-            }
-        }
-
-        private void ResetReticleColor()
-        {
-            if (blueReticle != null && blueReticle.material != null)
-            {
-                blueReticle.material.color = originalColor;
-                Debug.Log("Changed color to original");
-                changedColor = false;
-            }
+            Transform reticleTransform = FindScopeCameraTransform()?.Find("Canvas")?.Find("ScopeBackground")?.Find("ScopeImage")?.Find("ScopeReticle");
+            return reticleTransform;
         }
     }
 }
