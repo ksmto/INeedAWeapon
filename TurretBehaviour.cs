@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections;
-using System.Collections.Generic;
 using ThunderRoad;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 namespace INeedAWeapon
 {
@@ -14,10 +14,8 @@ namespace INeedAWeapon
         private Vector3 bulletSpawnPosition;
         private Vector3 casingSpawnPosition;
 
-        private int maximumAmmunition = 200;
+        private readonly int maximumAmmunition = 200;
         private int currentAmmunition = 0;
-
-        private bool triggerHeld = false;
 
         protected override void ManagedOnEnable()
         {
@@ -32,79 +30,113 @@ namespace INeedAWeapon
                 bulletSpawnPosition = turret.GetCustomReference<Transform>("BulletSpawnTrasform").position;
                 casingSpawnPosition = turret.GetCustomReference<Transform>("CasingSpawnTrasform").position;
 
-                if (magazineHolder != null)
-                {
-                    magazineHolder.Snapped += item =>
-                    {
-                        currentAmmunition = maximumAmmunition;
-                    };
-
-                    magazineHolder.UnSnapped += item =>
-                    {
-                        if (currentAmmunition > 0)
-                        {
-                            currentAmmunition = 1;
-                        }
-                        else
-                        {
-                            currentAmmunition = 0;
-                        }
-                    };
-                }
-
                 turret.OnHeldActionEvent += Turret_OnHeldActionEvent;
+                magazineHolder.Snapped += MagazineHolder_Snapped;
+                magazineHolder.UnSnapped += MagazineHolder_UnSnapped;
             }
         }
 
         private void Turret_OnHeldActionEvent(RagdollHand ragdollHand, Handle handle, Interactable.Action action)
         {
-            if (action == Interactable.Action.UseStart)
+            try
             {
-                triggerHeld = true;
-                GameManager.local.StartCoroutine(ShootRoutine());
+                GameManager.local.StartCoroutine(ShootRoutine(action));
             }
-            else if (action == Interactable.Action.UseStop)
+            catch (Exception e)
             {
-                triggerHeld = false;
+                Debug.LogException(e);
             }
         }
 
-        private void Shoot()
+        private void MagazineHolder_Snapped(Item item)
         {
-            var bulletItemData = Catalog.GetData<ItemData>("UNSCBattleRifle_Fire");
-            var casingItemData = Catalog.GetData<ItemData>("UNSCBattleRifle_Casing");
+            currentAmmunition = maximumAmmunition;
+            DisplayMessage.instance.ShowMessage(new DisplayMessage.MessageData($"Ammo: {currentAmmunition}", "", "", "", 1, 0, null, null, false, true, false, true, MessageAnchorType.Head, null, false, 1, null, true, null));
+        }
+
+        private void MagazineHolder_UnSnapped(Item item)
+        {
+            if (currentAmmunition > 0)
+            {
+                currentAmmunition = 1;
+            }
+            else
+            {
+                currentAmmunition = 0;
+            }
+
+            DisplayMessage.instance.ShowMessage(new DisplayMessage.MessageData($"Ammo: {currentAmmunition}", "", "", "", 1, 0, null, null, false, true, false, true, MessageAnchorType.Head, null, false, 1, null, true, null));
+        }
+
+        private IEnumerator ShootRoutine(Interactable.Action action)
+        {
+            var bulletItemData = Catalog.GetData<ItemData>("INAW.Ammunition.5.56x45mm.Bullet");
+            var casingItemData = Catalog.GetData<ItemData>("INAW.Ammunition.5.56x45mm.Casing");
+
+            Debug.Log("TRIED SHOOT");
+
+            while (action == Interactable.Action.UseStart)
+            {
+                if (currentAmmunition > 0)
+                {
+                    currentAmmunition--;
+                    DisplayMessage.instance.ShowMessage(new DisplayMessage.MessageData($"Ammo: {currentAmmunition}", "", "", "", 1, 0, null, null, false, true, false, true, MessageAnchorType.Head, null, false, 1, null, true));
+
+                    Debug.Log("TRIED ANIMATION");
+                    GameManager.local.StartCoroutine(BarrelSpinAnimationRoutine(action));
+
+                    Debug.Log("TRIED BULLET/CASING SPAWN");
+                    if (bulletItemData != null && casingItemData != null)
+                    {
+                        bulletItemData.SpawnAsync(bullet =>
+                        {
+                            bullet.Throw();
+                            bullet.physicBody.AddForce(-turret.transform.right * Random.Range(60.0f, 75.0f), ForceMode.VelocityChange);
+                            bullet.Despawn(8.0f);
+                        }, bulletSpawnPosition, Quaternion.LookRotation(Vector3.Cross(casingSpawnPosition, Vector3.up)));
+
+                        casingItemData.SpawnAsync(casing =>
+                        {
+                            casing.physicBody.AddForce((turret.transform.forward + turret.transform.up) * Random.Range(0.25f, 0.4f), ForceMode.Impulse);
+                            casing.Despawn(5.0f);
+                        }, casingSpawnPosition, Quaternion.LookRotation(Vector3.Cross(casingSpawnPosition, Vector3.up)));
+                    }
+
+                    foreach (var handler in turret.handlers)
+                    {
+                        handler?.HapticTick(1.0f);
+                    }
+                }
+                else
+                {
+                    break;
+                }
+
+                yield return new WaitForSeconds(0.05f);
+            }
+
+            yield return new WaitForSeconds(0.05f);
+        }
+
+        private IEnumerator BarrelSpinAnimationRoutine(Interactable.Action action)
+        {
+            if (action != Interactable.Action.UseStart)
+            {
+                animator.StopPlayback();
+                yield break;
+            }
 
             if (currentAmmunition > 0)
             {
-                if (bulletItemData != null && casingItemData != null)
-                {
-                    bulletItemData.SpawnAsync(bullet =>
-                    {
-                        bullet.Throw();
-                        bullet.physicBody.AddForce(-turret.transform.right * UnityEngine.Random.Range(60.0f, 75.0f), ForceMode.VelocityChange);
-                        bullet.Despawn(8.0f);
-                    }, bulletSpawnPosition, Quaternion.LookRotation(-turret.transform.right));
-
-                    casingItemData.SpawnAsync(casing =>
-                    {
-                        casing.physicBody.AddForce((turret.transform.forward + turret.transform.up) * UnityEngine.Random.Range(3.0f, 7.5f), ForceMode.Impulse);
-                        casing.Despawn(5.0f);
-                    }, casingSpawnPosition, Quaternion.LookRotation(-turret.transform.right));
-                }
-
-                if (animator != null)
-                {
-                    animator.Play("Spin");
-                }
+                animator.Play("Spin");
+                yield return new WaitForSeconds(0.5f);
+                animator.StopPlayback();
+                animator.Play("RapidSpin");
             }
-        }
-
-        private IEnumerator ShootRoutine()
-        {
-            while (triggerHeld)
+            else
             {
-                Shoot();
-                yield return new WaitForSeconds(0.3f);
+                animator.StopPlayback();
+                yield break;
             }
         }
     }

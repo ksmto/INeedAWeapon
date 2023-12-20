@@ -8,57 +8,33 @@ namespace INeedAWeapon
 {
     public class LevelModuleLastResort : LevelModule
     {
-        private Transform turretSpawnPosition;
-
         public override IEnumerator OnLoadCoroutine()
         {
-            try
+            if (level != null)
             {
-                if (level != null)
+                foreach (var referances in level.customReferences)
                 {
-                    Debug.Log("LOADED");
-
-                    foreach (var customReferances in level.customReferences)
+                    if (referances != null && referances.name == "TurretSpawnPosition")
                     {
-                        if (customReferances != null && customReferances.name == "TurretSpawnPosition")
+                        foreach (var transform in referances.transforms)
                         {
-                            foreach (var transforms in customReferances.transforms)
+                            if (transform != null && transform.name == "TurretSpawnPosition")
                             {
-                                if (transforms != null)
+                                Catalog.GetData<ItemData>("INAW.MapObjects.Turret").SpawnAsync(turret =>
                                 {
-                                    if (transforms.gameObject.name == "TurretSpawnPosition")
-                                    {
-                                        Debug.Log("GET TURRET SPAWN POS");
-                                        turretSpawnPosition = transforms;
-                                        EventManager.onLevelLoad += EventManager_onLevelLoad;
-                                    }
-                                }
+                                    turret.gameObject.AddComponent<TurretBehaviour>();
+                                    turret.disallowDespawn = true;
+                                    turret.physicBody.isKinematic = true;
+                                    turret.physicBody.useGravity = false;
+                                    turret.physicBody.rigidBody.isKinematic = true;
+                                    turret.physicBody.rigidBody.useGravity = false;
+                                }, transform.position, Quaternion.LookRotation(-Vector3.right));
                             }
                         }
                     }
                 }
             }
-            catch (Exception e)
-            {
-                Debug.LogException(e);
-            }
             return base.OnLoadCoroutine();
-        }
-
-        private void EventManager_onLevelLoad(LevelData levelData, EventTime eventTime)
-        {
-            if (eventTime == EventTime.OnEnd)
-            {
-                Catalog.GetData<ItemData>("INAW.MapObjects.Turret").SpawnAsync(turret =>
-                {
-                    turret.gameObject.AddComponent<TurretBehaviour>();
-                    turret.disallowDespawn = true;
-                    turret.physicBody.isKinematic = true;
-                    turret.physicBody.useGravity = false;
-                    turret.transform.position = turretSpawnPosition.position;
-                    turret.transform.rotation = Quaternion.LookRotation(Vector3.forward);
-                });
-            }
         }
     }
 }
