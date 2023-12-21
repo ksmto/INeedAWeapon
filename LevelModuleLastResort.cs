@@ -14,21 +14,38 @@ namespace INeedAWeapon
             {
                 foreach (var referances in level.customReferences)
                 {
-                    if (referances != null && referances.name == "TurretSpawnPosition")
+                    if (referances != null)
                     {
-                        foreach (var transform in referances.transforms)
+                        if (referances.name == "TurretSpawnPosition")
                         {
-                            if (transform != null && transform.name == "TurretSpawnPosition")
+                            foreach (var turretSpawnPositionTransform in referances.transforms)
                             {
-                                Catalog.GetData<ItemData>("INAW.MapObjects.Turret").SpawnAsync(turret =>
+                                if (turretSpawnPositionTransform != null)
                                 {
-                                    turret.gameObject.AddComponent<TurretBehaviour>();
-                                    turret.disallowDespawn = true;
-                                    turret.physicBody.isKinematic = true;
-                                    turret.physicBody.useGravity = false;
-                                    turret.physicBody.rigidBody.isKinematic = true;
-                                    turret.physicBody.rigidBody.useGravity = false;
-                                }, transform.position, Quaternion.LookRotation(-Vector3.right));
+                                    if (turretSpawnPositionTransform.name == "TurretSpawnPosition")
+                                    {
+                                        Catalog.GetData<ItemData>("INAW.MapObjects.Turret").SpawnAsync(turret =>
+                                        {
+                                            turret.gameObject.TryGetOrAddComponent(out TurretBehaviour component);
+                                            turret.disallowDespawn = true;
+                                            turret.physicBody.isKinematic = true;
+                                            turret.physicBody.useGravity = false;
+                                            turret.physicBody.rigidBody.isKinematic = true;
+                                            turret.physicBody.rigidBody.useGravity = false;
+                                        }, turretSpawnPositionTransform.position, Quaternion.LookRotation(-Vector3.right));
+                                    }
+                                }
+                            }
+                        }
+
+                        if (referances.name == "WindTurbine")
+                        {
+                            foreach (var windTurbineTransform in referances.transforms)
+                            {
+                                if (windTurbineTransform != null && windTurbineTransform.name == "WindTurbine")
+                                {
+                                    windTurbineTransform.gameObject.TryGetOrAddComponent(out WindTurbineBehaviour component);
+                                }
                             }
                         }
                     }

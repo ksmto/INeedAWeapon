@@ -534,6 +534,7 @@
     <Compile Include="ScopeBehaviour.cs" />
     <Compile Include="ScrollTexture.cs" />
     <Compile Include="TurretBehaviour.cs" />
+    <Compile Include="WindTurbineBehaviour.cs" />
     <Compile Include="Wobble.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
