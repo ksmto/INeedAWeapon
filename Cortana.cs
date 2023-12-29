@@ -158,12 +158,12 @@ namespace INeedAWeapon
                     GameManager.local.StartCoroutine(PlayerKilledRoutine());
                 }
 
-                else if (collisionInstance.damageStruct.hitRagdollPart.ragdoll.headPart)
+                else if (collisionInstance.damageStruct.hitRagdollPart == collisionInstance.damageStruct.hitRagdollPart.ragdoll.headPart)
                 {
                     GameManager.local.StartCoroutine(CreatureHeadShotRoutine());
                 }
                 else
-                {
+                {   
                     GameManager.local.StartCoroutine(CreatureKillRoutine());
                 }
             }
