@@ -17,10 +17,12 @@ namespace INeedAWeapon {
  
         public override void OnCatalogRefresh(EventTime eventTime) {
             base.OnCatalogRefresh(eventTime);
+            //loads all the effect data from the catalog
             EffectData();
         }
 
         public override void OnMapChange(LevelData levelData, EventTime eventTime) {
+            //on map change resets the killing spree and multikill trackers
             base.OnMapChange(levelData, eventTime);
             killSpreeCounter = 0;
             killCounter = 0;
@@ -28,72 +30,88 @@ namespace INeedAWeapon {
 
         public override void OnCreatureKill(Creature creature, Player player, CollisionInstance collisionInstance, EventTime eventTime) {
             base.OnCreatureKill(creature, player, collisionInstance, eventTime);
-            if (ModOptions.KillingSpreeAnnouncements) {
-                KillStreaks(creature);
-            }
 
-            if (ModOptions.MultikillAnnouncements) {
-                Multikills(creature);
-            }
+            if (eventTime == EventTime.OnEnd) return;
+
+                if (ModOptions.KillingSpreeAnnouncements)
+                {
+                    //if killing sprees turned on runs kill streaks 
+                    KillStreaks(creature);
+                }
+
+                if (ModOptions.MultikillAnnouncements)
+                {
+                    //if multikills are turned on runs multikill
+                    Multikills();
+                }
+            
+
         }
-
-        private void Multikills(Creature creature) {
+        
+        private void Multikills() {
+            //adds 1 to the kill counter
 
             killCounter += 1;
+
             Debug.Log("kill counter is at " + killCounter);
             if (killCounter == 1) {
+                //if the kill counter is 1 starts the timer.  After 4 seconds (default) the counter resets to 0 
                 GameManager.local.StartCoroutine(MultikillTimeInterval());
             }
 
-            else if (killCounter == 3) {
+            if (killCounter == 2) {
+                //if kill counter is 2 plays double kill
                 Debug.Log("playing Double Kill.  Kill Counter = " + killCounter);
                 GameManager.local.StartCoroutine(DoubleKillRoutine());
 
 
             }
-            else if (killCounter == 4) {
+            if (killCounter == 3) {
+                //if kill counter is 3 plays triple kill
                 GameManager.local.StartCoroutine(TripleKillRoutine());
                 Debug.Log("playing triple Kill.  Kill Counter = " + killCounter);
 
 
             }
-            else if (killCounter == 5) {
-                Debug.Log("playing overkill .  Kill Counter = " + killCounter);
+            if (killCounter == 4) {
+                //if kill counter is 4 plays overkill
+                Debug.Log("playing overkill.  Kill Counter = " + killCounter);
                 GameManager.local.StartCoroutine(OverKillRoutine());
 
 
 
             }
-            else if (killCounter == 6) {
+             if (killCounter == 5) {
+                // if Kill counter is 5 plays killtacular 
                 Debug.Log("playing Killtacular.  Kill Counter = " + killCounter);
                 GameManager.local.StartCoroutine(KilltacularRoutine());
 
 
             }
-            else if (killCounter == 7) {
+             if (killCounter == 6) {
                 Debug.Log("playing Killtrocity.  Kill Counter = " + killCounter);
                 GameManager.local.StartCoroutine(KilltrocityRoutine());
 
 
             }
-            else if (killCounter == 8) {
+             if (killCounter == 7) {
                 Debug.Log("playing Killimanjaro.  Kill Counter = " + killCounter);
                 GameManager.local.StartCoroutine(KillimanjaroRoutine());
 
 
             }
-            else if (killCounter == 9) {
+             if (killCounter == 8) {
                 Debug.Log("playing Killtastrophe.  Kill Counter = " + killCounter);
                 GameManager.local.StartCoroutine(KilltastropheRoutine());
 
 
             }
-            else if (killCounter == 10) {
+             if (killCounter == 9) {
                 Debug.Log("playing killpocalypse.  Kill Counter = " + killCounter);
                 GameManager.local.StartCoroutine(KillpocalypseRoutine());
 
             }
-            else if (killCounter == 11) {
+             if (killCounter == 10) {
                 Debug.Log("playing killionaire.  Kill Counter = " + killCounter);
                 GameManager.local.StartCoroutine(KillionaireRoutine());
                 killCounter = 0;
@@ -102,34 +120,37 @@ namespace INeedAWeapon {
         }
 
         private void KillStreaks(Creature creature) {
+
             killSpreeCounter += 1;
+
             Debug.Log ("Killing spree counter = " + killSpreeCounter);
+
             if (!creature.isPlayer) {
-                if (killSpreeCounter == 6) {
+                if (killSpreeCounter == 4) {
                     GameManager.local.StartCoroutine(KillingSpreeRoutine());
                 }
 
-                if (killSpreeCounter == 11) {
+                if (killSpreeCounter == 9) {
                     GameManager.local.StartCoroutine(KillingFrenzyRoutine());
 
                 }
 
-                if (killSpreeCounter == 16) {
+                if (killSpreeCounter == 14) {
                     GameManager.local.StartCoroutine(RunningRiotRoutine());
 
                 }
 
-                if (killSpreeCounter == 21) {
+                if (killSpreeCounter == 19) {
                     GameManager.local.StartCoroutine(RampageRoutine());
 
                 }
 
-                if (killSpreeCounter == 26) {
+                if (killSpreeCounter == 24) {
                     GameManager.local.StartCoroutine(UntouchableRoutine());
 
                 }
 
-                if (killSpreeCounter == 31) {
+                if (killSpreeCounter == 29) {
                     GameManager.local.StartCoroutine(InvincibleRoutine());
                     killSpreeCounter = 0;
                 }

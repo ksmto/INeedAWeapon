@@ -33,28 +33,32 @@ namespace INeedAWeapon
 
             if (item != null)
             {
-                CortanaAnnouncer announcer = new CortanaAnnouncer();
-                EventManager.onEdibleConsumed += CortanaChipEaten; }
+                item.OnSnapEvent += CortanaSnap;
+                item.OnUnSnapEvent += CortanaUnSnap;
+            }
 
         }
 
-
-        private void CortanaChipEaten(Item edible, Creature consumer, EventTime eventTime)
+        private void CortanaUnSnap(Holder holder)
         {
-            if (consumer != null && consumer.isPlayer)
-            {
-                announcer.CortanaGreeting();
-            }
+            CortanaAnnouncer.cortanaActive = false;
+        }
+
+        private void CortanaSnap(Holder holder)
+        {
+            announcer.CortanaGreeting();
+            CortanaAnnouncer.cortanaActive = true;
         }
     }
 
     public class CortanaAnnouncer : HaloEvents
     {
+        public static bool cortanaActive;
         int intQuoteRoll;
         Random random = new Random();
         bool isPlaying;
         private EffectData Cortana_DeathEffect, Cortana_LowHPEffect, Cortana_EnemyWarnEffect, Cortana_KillEffect, Cortana_KillHeadshotEffect, Cortana_SpawnGreetEffect;
-        private EffectInstance CortanaPlayerDeath, Cortana_LowHP, CortanaPlayerDamaged, CortanaEnemyWarn, Cortana_Kill, Cortana_Headshot, Cortana_SpawnGreet;
+        private EffectInstance CortanaPlayerDeath, Cortana_LowHP, CortanaEnemyWarn, Cortana_Kill, Cortana_Headshot, Cortana_SpawnGreet;
         public override void OnCatalogRefresh(EventTime eventTime)
         {
             Cortana_DeathEffect = Catalog.GetData<EffectData>("INAWCortanaDeath");
@@ -69,7 +73,7 @@ namespace INeedAWeapon
         /* EVENTS */
         public override void OnCreatureHit(Creature creature, CollisionInstance collisionInstance, EventTime eventTime)
         {
-            if (ModOptions.cortanaActive)
+            if (cortanaActive && eventTime == EventTime.OnStart)
             {
 
                 if (CortanaRandom())
@@ -87,7 +91,7 @@ namespace INeedAWeapon
         public override void OnCreatureKill(Creature creature, Player player, CollisionInstance collisionInstance, EventTime eventTime)
         {
             {
-                if (ModOptions.cortanaActive)
+                if (cortanaActive && eventTime == EventTime.OnStart)
                 {
                     {
                         if (CortanaRandom())
@@ -103,7 +107,7 @@ namespace INeedAWeapon
         }
         public override void OnCreatureSpawn(Creature creature)
         {
-            if (ModOptions.cortanaActive && !creature.isPlayer)
+            if (cortanaActive && !creature.isPlayer)
             {
                 if (CortanaRandom())
                 {
@@ -154,12 +158,12 @@ namespace INeedAWeapon
                     GameManager.local.StartCoroutine(PlayerKilledRoutine());
                 }
 
-                else if (collisionInstance.damageStruct.hitRagdollPart.ragdoll.headPart)
+                else if (collisionInstance.damageStruct.hitRagdollPart == collisionInstance.damageStruct.hitRagdollPart.ragdoll.headPart)
                 {
                     GameManager.local.StartCoroutine(CreatureHeadShotRoutine());
                 }
                 else
-                {
+                {   
                     GameManager.local.StartCoroutine(CreatureKillRoutine());
                 }
             }
