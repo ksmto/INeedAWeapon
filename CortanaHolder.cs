@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -38,12 +38,12 @@ namespace INeedAWeapon
 
         }
     }
-    public class CortanaHolder: MonoBehaviour
+    internal class CortanaHolder: MonoBehaviour
     {
         Creature creature;
         Holder holder;
 
-        void Awake()
+         void Awake()
         {
             creature = transform.root.GetComponent<Creature>();
             holder = GetComponent<Holder>();
