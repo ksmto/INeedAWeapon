@@ -518,6 +518,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Cortana.cs" />
+    <Compile Include="CortanaHolder.cs" />
     <Compile Include="DoTZone.cs" />
     <Compile Include="Extensions.cs" />
     <Compile Include="GravityHammerBehavior.cs" />
@@ -525,6 +526,7 @@
     <Compile Include="HaloEvents.cs" />
     <Compile Include="ItemModuleGravityHammer.cs" />
     <Compile Include="ItemModuleScope.cs" />
+    <Compile Include="ItemModuleTurretMagazine.cs" />
     <Compile Include="LevelModuleLastResort.cs" />
     <Compile Include="ModOptions.cs" />
     <Compile Include="NPCEnergySword.cs" />
@@ -534,7 +536,7 @@
     <Compile Include="ScopeBehaviour.cs" />
     <Compile Include="ScrollTexture.cs" />
     <Compile Include="TurretBehaviour.cs" />
-    <Compile Include="WindTurbineBehaviour.cs" />
+    <Compile Include="TurretMagazineBehaviour.cs" />
     <Compile Include="Wobble.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

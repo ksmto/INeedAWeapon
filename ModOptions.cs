@@ -4,7 +4,6 @@ namespace INeedAWeapon
 {
     internal class ModOptions
     {
-
         /* KILLSTREAK SETTINGS */
         [ModOptionButton]
         [ModOption(name = "Multikill Announcements", tooltip = "Toggles Multikill announcements.", order = 1, category = "Announcer", defaultValueIndex = 0, valueSourceName = nameof(EnabledOrDisabled))]
@@ -29,6 +28,7 @@ namespace INeedAWeapon
             new ModOptionInt("16 Seconds", 16),
             new ModOptionInt("32 Seconds", 32)
         };
+
         /* AOE SCRIPT SETTINGS */
         [ModOptionCategory("Damage Settings", 1)]
         [ModOptionTooltip("Is the player susceptible to AoE effects")]
@@ -51,9 +51,8 @@ namespace INeedAWeapon
         public static float aoeDamage = 5f;
 
         /* CORTANA SETTINGS */
-
         public static ModOptionInt[] QuotePercentage =
-{
+        {
             new ModOptionInt("25%", 75),
             new ModOptionInt("50%", 50),
             new ModOptionInt("75%", 25),
@@ -66,8 +65,8 @@ namespace INeedAWeapon
         [ModOptionOrder(2)]
         public static int quoteChance = 75;
 
-        public static ModOptionInt[] optionquoteDelay =
-{
+        public static ModOptionInt[] optionquoteDelay = 
+         {
             new ModOptionInt("5", 5),
             new ModOptionInt("10", 10),
             new ModOptionInt("15", 15),

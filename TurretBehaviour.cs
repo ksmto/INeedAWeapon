@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections;
+using System.Collections.Generic;
 using ThunderRoad;
 using UnityEngine;
 using Random = UnityEngine.Random;
@@ -22,6 +23,8 @@ namespace INeedAWeapon
 
         private readonly int maximumAmmunition = 200;
         private int currentAmmunition = 0;
+
+        private bool explosiveBullets = false;
 
         private void Start()
         {
@@ -55,7 +58,7 @@ namespace INeedAWeapon
                 bulletSpawnPosition = bulletSpawnTransform.position;
                 // Muzzle Flash
                 muzzleFlashEffect.transform.position = bulletSpawnPosition;
-                muzzleFlashEffect.transform.rotation = Quaternion.LookRotation(-turret.transform.right);
+                muzzleFlashEffect.transform.rotation = bulletSpawnTransform.rotation;
                 // Casing
                 var casingSpawnTransform = turret.GetCustomReference<Transform>("CasingSpawnTrasform");
                 casingSpawnPosition = casingSpawnTransform.position;
@@ -66,6 +69,17 @@ namespace INeedAWeapon
         {
             currentAmmunition = maximumAmmunition;
             magazineSFX?.Play();
+            if (item.TryGetComponent(out TurretMagazineBehaviour turretMagazineBehaviour))
+            {
+                if (turretMagazineBehaviour.explosiveBulletsActivated)
+                {
+                    explosiveBullets = true;
+                }
+                else
+                {
+                    explosiveBullets = false;
+                }
+            }
             DisplayMessage.instance.ShowMessage(new DisplayMessage.MessageData($"Ammo: {currentAmmunition}", "", "", "", 1, 0, null, null, false, true, false, true, MessageAnchorType.Head, null, false, 1, null, true, null));
         }
 
@@ -111,6 +125,44 @@ namespace INeedAWeapon
                             {
                                 bullet.Throw();
                                 bullet.physicBody.AddForce(-turret.transform.right * Random.Range(60.0f, 75.0f), ForceMode.VelocityChange);
+                                if (explosiveBullets)
+                                {
+                                    bullet.mainCollisionHandler.OnCollisionStartEvent += instance =>
+                                    {
+                                        var explosionEffectData = Catalog.GetData<EffectData>("MeteorExplosion");
+                                        if (explosionEffectData != null)
+                                        {
+                                            var explosionEffectInstance = explosionEffectData.Spawn(instance.contactPoint, Quaternion.identity);
+                                            explosionEffectInstance?.Play();
+                                        }
+
+                                        foreach (var hitColliders in Physics.OverlapSphere(instance.contactPoint, 5.0f))
+                                        {
+                                            if (hitColliders.TryGetComponentInParent(out Creature creature))
+                                            {
+                                                if (!creature.isPlayer)
+                                                {
+                                                    foreach (var part in creature.ragdoll.parts)
+                                                    {
+                                                        if (part != null)
+                                                        {
+                                                            creature.ragdoll?.SetState(Ragdoll.State.Destabilized);
+                                                            part.physicBody?.rigidBody?.AddExplosionForce(5.0f, instance.contactPoint, 5.0f, 1.0f, ForceMode.VelocityChange);
+                                                        }
+                                                    }
+                                                    creature.Damage(new CollisionInstance(new DamageStruct(DamageType.Energy, 5.0f)));
+
+                                                    if (creature.data.id != "Chicken")
+                                                    {
+                                                        creature.handLeft?.TryRelease();
+                                                        creature.handRight?.TryRelease();
+                                                    }
+                                                }
+                                            }
+                                        }
+                                        bullet.Despawn();
+                                    };
+                                }
                                 bullet.Despawn(8.0f);
                             }, bulletSpawnPosition, Quaternion.LookRotation(-turret.transform.right));
 
