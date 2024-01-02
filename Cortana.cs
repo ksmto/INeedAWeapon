@@ -26,10 +26,15 @@ namespace INeedAWeapon
 
         private Item item;
         CortanaAnnouncer announcer;
+        EffectInstance Cortana_SpawnGreet;
+        EffectData Cortana_SpawnGreetEffect;
         protected override void ManagedOnEnable()
         {
             base.ManagedOnEnable();
             item = GetComponent<Item>();
+            Cortana_SpawnGreetEffect = Catalog.GetData<EffectData>("INAWCortanaGreet");
+
+
 
             if (item != null)
             {
@@ -46,8 +51,20 @@ namespace INeedAWeapon
 
         private void CortanaSnap(Holder holder)
         {
-            announcer.CortanaGreeting();
+            CortanaGreeting();
             CortanaAnnouncer.cortanaActive = true;
+        }
+        public void CortanaGreeting()
+        {
+
+                GameManager.local.StartCoroutine(CortanaGreetRoutine());
+        }
+        public IEnumerator CortanaGreetRoutine()
+        {
+            Cortana_SpawnGreet = Cortana_SpawnGreetEffect?.Spawn(Player.local.creature.transform);
+            Cortana_SpawnGreet.Play();
+            yield return new WaitForSeconds(ModOptions.quoteDelay);
+            yield return null;
         }
     }
 
@@ -57,8 +74,8 @@ namespace INeedAWeapon
         int intQuoteRoll;
         Random random = new Random();
         bool isPlaying;
-        private EffectData Cortana_DeathEffect, Cortana_LowHPEffect, Cortana_EnemyWarnEffect, Cortana_KillEffect, Cortana_KillHeadshotEffect, Cortana_SpawnGreetEffect;
-        private EffectInstance CortanaPlayerDeath, Cortana_LowHP, CortanaEnemyWarn, Cortana_Kill, Cortana_Headshot, Cortana_SpawnGreet;
+        private EffectData Cortana_DeathEffect, Cortana_LowHPEffect, Cortana_EnemyWarnEffect, Cortana_KillEffect, Cortana_KillHeadshotEffect;
+        private EffectInstance CortanaPlayerDeath, Cortana_LowHP, CortanaEnemyWarn, Cortana_Kill, Cortana_Headshot;
         public override void OnCatalogRefresh(EventTime eventTime)
         {
             Cortana_DeathEffect = Catalog.GetData<EffectData>("INAWCortanaDeath");
@@ -66,7 +83,6 @@ namespace INeedAWeapon
             Cortana_EnemyWarnEffect = Catalog.GetData<EffectData>("INAWCortanaEnemyWarn");
             Cortana_KillEffect = Catalog.GetData<EffectData>("INAWCortanaKill");
             Cortana_KillHeadshotEffect = Catalog.GetData<EffectData>("INAWCortanaKillHeadshot");
-            Cortana_SpawnGreetEffect = Catalog.GetData<EffectData>("INAWCortanaGreet");
         }
 
 
@@ -130,13 +146,7 @@ namespace INeedAWeapon
             else return false;
         }
 
-        public void CortanaGreeting()
-        {
-            if (!isPlaying)
-            {
-                GameManager.local.StartCoroutine(CortanaGreetRoutine());
-            }
-        }
+
         public void CortanaPlayerHurt()
         {
             if (!isPlaying)
@@ -216,15 +226,7 @@ namespace INeedAWeapon
             isPlaying = false;
             yield return null;
         }
-        public IEnumerator CortanaGreetRoutine()
-        {
-            isPlaying = true;
-            Cortana_SpawnGreet = Cortana_SpawnGreetEffect?.Spawn(Player.local.creature.transform);
-            Cortana_SpawnGreet.Play();
-            yield return new WaitForSeconds(ModOptions.quoteDelay);
-            isPlaying = false;
-            yield return null;
-        }
+
         public IEnumerator EnemySpawnWarningRoutine()
         {
             isPlaying = true;
