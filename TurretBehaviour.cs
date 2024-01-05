@@ -24,8 +24,6 @@ namespace INeedAWeapon
         private readonly int maximumAmmunition = 200;
         private int currentAmmunition = 0;
 
-        private bool explosiveBullets = false;
-
         private void Start()
         {
             turret = GetComponent<Item>();
@@ -55,12 +53,14 @@ namespace INeedAWeapon
             {
                 // Bullet
                 var bulletSpawnTransform = turret.GetCustomReference<Transform>("BulletSpawnTrasform");
+                bulletSpawnTransform.rotation = turret.transform.rotation;
                 bulletSpawnPosition = bulletSpawnTransform.position;
                 // Muzzle Flash
                 muzzleFlashEffect.transform.position = bulletSpawnPosition;
-                muzzleFlashEffect.transform.rotation = bulletSpawnTransform.rotation;
+                muzzleFlashEffect.transform.rotation = turret.transform.rotation;
                 // Casing
                 var casingSpawnTransform = turret.GetCustomReference<Transform>("CasingSpawnTrasform");
+                casingSpawnTransform.rotation = turret.transform.rotation;
                 casingSpawnPosition = casingSpawnTransform.position;
             }
         }
@@ -69,17 +69,6 @@ namespace INeedAWeapon
         {
             currentAmmunition = maximumAmmunition;
             magazineSFX?.Play();
-            if (item.TryGetComponent(out TurretMagazineBehaviour turretMagazineBehaviour))
-            {
-                if (turretMagazineBehaviour.explosiveBulletsActivated)
-                {
-                    explosiveBullets = true;
-                }
-                else
-                {
-                    explosiveBullets = false;
-                }
-            }
             DisplayMessage.instance.ShowMessage(new DisplayMessage.MessageData($"Ammo: {currentAmmunition}", "", "", "", 1, 0, null, null, false, true, false, true, MessageAnchorType.Head, null, false, 1, null, true, null));
         }
 
@@ -125,7 +114,7 @@ namespace INeedAWeapon
                             {
                                 bullet.Throw();
                                 bullet.physicBody.AddForce(-turret.transform.right * Random.Range(60.0f, 75.0f), ForceMode.VelocityChange);
-                                if (explosiveBullets)
+                                /*if (explosiveBullets)
                                 {
                                     bullet.mainCollisionHandler.OnCollisionStartEvent += instance =>
                                     {
@@ -163,7 +152,7 @@ namespace INeedAWeapon
                                         bullet.Despawn();
                                     };
                                 }
-                                bullet.Despawn(8.0f);
+                                bullet.Despawn(8.0f);*/
                             }, bulletSpawnPosition, Quaternion.LookRotation(-turret.transform.right));
 
                             casingItemData.SpawnAsync(casing =>

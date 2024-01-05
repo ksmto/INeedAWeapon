@@ -528,8 +528,7 @@
     <Compile Include="HaloEvents.cs" />
     <Compile Include="ItemModuleGravityHammer.cs" />
     <Compile Include="ItemModuleScope.cs" />
-    <Compile Include="ItemModuleTurretMagazine.cs" />
-    <Compile Include="LevelModuleLastResort.cs" />
+    <Compile Include="TurretBehaviourInitializer .cs" />
     <Compile Include="ModOptions.cs" />
     <Compile Include="NPCEnergySword.cs" />
     <Compile Include="PetBase.cs" />
@@ -538,7 +537,6 @@
     <Compile Include="ScopeBehaviour.cs" />
     <Compile Include="ScrollTexture.cs" />
     <Compile Include="TurretBehaviour.cs" />
-    <Compile Include="TurretMagazineBehaviour.cs" />
     <Compile Include="Wobble.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
