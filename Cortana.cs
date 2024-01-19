@@ -6,7 +6,6 @@ using System.Text;
 using System.Threading.Tasks;
 using ThunderRoad;
 using UnityEngine;
-using Random = System.Random;
 
 
 namespace INeedAWeapon
@@ -19,13 +18,11 @@ namespace INeedAWeapon
             item.gameObject.AddComponent<CortanaChip>();
         }
     }
-
     public class CortanaChip : ThunderBehaviour
     {
 
 
         private Item item;
-        CortanaAnnouncer announcer;
         EffectInstance Cortana_SpawnGreet;
         EffectData Cortana_SpawnGreetEffect;
         protected override void ManagedOnEnable()
@@ -46,13 +43,20 @@ namespace INeedAWeapon
 
         private void CortanaUnSnap(Holder holder)
         {
-            CortanaAnnouncer.cortanaActive = false;
+            ModOptions.cortanaActive = false;
         }
 
         private void CortanaSnap(Holder holder)
         {
             CortanaGreeting();
-            CortanaAnnouncer.cortanaActive = true;
+            ModOptions.butlrActive = false;
+            ModOptions.cortanaActive = true;
+            ModOptions.circActive = false;
+            ModOptions.fretActive = false;
+            ModOptions.lumuActive = false;
+            ModOptions.misterchiefActive = false;
+            ModOptions.matiActive = false;
+            ModOptions.vergilActive = false;
         }
         public void CortanaGreeting()
         {
@@ -70,9 +74,6 @@ namespace INeedAWeapon
 
     public class CortanaAnnouncer : HaloEvents
     {
-        public static bool cortanaActive;
-        int intQuoteRoll;
-        Random random = new Random();
         bool isPlaying;
         private EffectData Cortana_DeathEffect, Cortana_LowHPEffect, Cortana_EnemyWarnEffect, Cortana_KillEffect, Cortana_KillHeadshotEffect;
         private EffectInstance CortanaPlayerDeath, Cortana_LowHP, CortanaEnemyWarn, Cortana_Kill, Cortana_Headshot;
@@ -89,15 +90,14 @@ namespace INeedAWeapon
         /* EVENTS */
         public override void OnCreatureHit(Creature creature, CollisionInstance collisionInstance, EventTime eventTime)
         {
-            if (cortanaActive && eventTime == EventTime.OnStart)
+            if (ModOptions.cortanaActive && eventTime == EventTime.OnStart)
             {
 
-                if (CortanaRandom())
+                if (AiRandom())
                 {
                     
                     if (creature.isPlayer)
                     {
-                        Debug.Log("Cortana Player hit triggered");
                         CortanaPlayerHurt();
                     }
                 }
@@ -107,12 +107,11 @@ namespace INeedAWeapon
         public override void OnCreatureKill(Creature creature, Player player, CollisionInstance collisionInstance, EventTime eventTime)
         {
             {
-                if (cortanaActive && eventTime == EventTime.OnStart)
+                if (ModOptions.cortanaActive && eventTime == EventTime.OnStart)
                 {
                     {
-                        if (CortanaRandom())
+                        if (AiRandom())
                         {
-                            Debug.Log("cortana creature kill triggered");
                             CortanaKills(collisionInstance, creature);
                         }
                     }
@@ -123,9 +122,9 @@ namespace INeedAWeapon
         }
         public override void OnCreatureSpawn(Creature creature)
         {
-            if (cortanaActive && !creature.isPlayer)
+            if (ModOptions.cortanaActive && !creature.isPlayer)
             {
-                if (CortanaRandom())
+                if (AiRandom())
                 {
 
                     CortanaEnemyWarning();
@@ -135,17 +134,6 @@ namespace INeedAWeapon
         }
 
         /* METHODS */
-        public bool CortanaRandom()
-        {
-            intQuoteRoll = random.Next(100 + 1);
-            Debug.Log("Cortana Random roll = " + intQuoteRoll);
-            if (ModOptions.quoteChance <= intQuoteRoll)
-            {
-                return true;
-            }
-            else return false;
-        }
-
 
         public void CortanaPlayerHurt()
         {
