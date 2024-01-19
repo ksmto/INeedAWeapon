@@ -59,13 +59,13 @@ namespace INeedAWeapon
             new ModOptionInt("100%", 0)
         };
 
-        [ModOption(name: "Cortana Quote Chance", tooltip: "Chance of cortana commenting on events", nameof(QuotePercentage))]
-        [ModOptionCategory("Cortana", 1)]
+        [ModOption(name: "AI Quote Chance", tooltip: "Chance of AI commenting on events", nameof(QuotePercentage))]
+        [ModOptionCategory("AI Companion", 1)]
         [ModOptionArrows]
         [ModOptionOrder(2)]
         public static int quoteChance = 75;
 
-        public static ModOptionInt[] optionquoteDelay = 
+        public static ModOptionInt[] optionquoteDelay =
          {
             new ModOptionInt("5", 5),
             new ModOptionInt("10", 10),
@@ -73,14 +73,64 @@ namespace INeedAWeapon
             new ModOptionInt("20", 20)
         };
 
-        [ModOption(name: "Cortana Quote Delay", tooltip: "Delay between Cortana quotes playing", nameof(optionquoteDelay))]
-        [ModOptionCategory("Cortana", 1)]
+        [ModOption(name: "AI Quote Delay", tooltip: "Delay between AI quotes playing", nameof(optionquoteDelay))]
+        [ModOptionCategory("AI Companion", 1)]
         [ModOptionArrows]
         [ModOptionOrder(2)]
         public static int quoteDelay = 5;
 
-
-        [ModOption(name = "Cortana Enabled", tooltip = "Toggles Cortana commentary.", order = 2, category = "Cortana", defaultValueIndex = 0, valueSourceName = nameof(EnabledOrDisabled))]
+        //AI companion enablers.  Need to be mod options, but don't need to be player visible
+        public static bool butlrActive;
         public static bool cortanaActive;
+        public static bool circActive;
+        public static bool fretActive;
+        public static bool lumuActive;
+        public static bool misterchiefActive;
+        public static bool matiActive;
+        public static bool vergilActive;
+
+
+        /* Energy Shield Settings */
+        /*
+         * Commenting these out until I have more time to work on the shields
+        [ModOptionCategory("Energy Shield", 1)]
+        [ModOptionTooltip("Is the energy shield enabled")]
+        [ModOptionOrder(1)]
+        [ModOption("Player AoE Damage", defaultValueIndex = 0)]
+        public static bool energyShieldEnabled;
+
+        public static ModOptionFloat[] optionEnergyHP =
+ {
+            new ModOptionFloat("25%", 25),
+            new ModOptionFloat("50%", 50),
+            new ModOptionFloat("75%", 75),
+            new ModOptionFloat("100%", 100),
+            new ModOptionFloat("200%", 200),
+            new ModOptionFloat("300%", 300),
+            new ModOptionFloat("400%", 400),
+            new ModOptionFloat("500%", 500)
+        };
+
+        [ModOption(name: "Energy Shield Strength", tooltip: "How much health the energy shield has", nameof(optionEnergyHP))]
+        [ModOptionCategory("Energy Shield", 2)]
+        [ModOptionArrows]
+        public static int energyShieldHP;
+
+
+        public static ModOptionFloat[] optionShieldRecharge =
+    {
+            new ModOptionFloat("2", 2),
+            new ModOptionFloat("4", 4),
+            new ModOptionFloat("6", 6),
+            new ModOptionFloat("8", 8)
+        };
+
+        [ModOption(name: "Energy Shield Recharge", tooltip: "How long it takes for your shield to start recharging after taking damage", nameof(optionShieldRecharge))]
+        [ModOptionCategory("Energy Shield", 2)]
+        [ModOptionArrows]
+        public static int energyShieldDelay;
+    }
+        */
+
     }
 }
